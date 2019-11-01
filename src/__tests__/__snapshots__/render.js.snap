@@ -2,11 +2,22 @@
 
 exports[`supports fragments 1`] = `
 <DocumentFragment>
-  <div>
-    <code>
-      DocumentFragment
-    </code>
-     is pretty cool!
-  </div>
+  <atl-fragment
+    class="ng-scope ng-isolate-scope"
+  >
+    
+      
+    <div>
+      
+        
+      <code>
+        DocumentFragment
+      </code>
+       is pretty cool!
+      
+    </div>
+    
+    
+  </atl-fragment>
 </DocumentFragment>
 `;

@@ -1,35 +1,14 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import angular from 'angular'
+import 'angular-mocks'
 import {
   getQueriesForElement,
   prettyDOM,
   fireEvent as dtlFireEvent,
-  configure as configureDTL,
 } from '@testing-library/dom'
-import act, {asyncAct} from './act-compat'
-
-configureDTL({
-  asyncWrapper: async cb => {
-    let result
-    await asyncAct(async () => {
-      result = await cb()
-    })
-    return result
-  },
-})
 
 const mountedContainers = new Set()
 
-function render(
-  ui,
-  {
-    container,
-    baseElement = container,
-    queries,
-    hydrate = false,
-    wrapper: WrapperComponent,
-  } = {},
-) {
+function render(ui, {container, baseElement = container, queries} = {}) {
   if (!baseElement) {
     // default to document.body instead of documentElement to avoid output of potentially-large
     // head elements (such as JSS style blocks) in debug output
@@ -44,18 +23,19 @@ function render(
   // they're passing us a custom container or not.
   mountedContainers.add(container)
 
-  const wrapUiIfNeeded = innerElement =>
-    WrapperComponent
-      ? React.createElement(WrapperComponent, null, innerElement)
-      : innerElement
+  let $scope
+  angular.mock.inject([
+    '$compile',
+    '$rootScope',
+    ($compile, $rootScope) => {
+      $scope = $rootScope.$new()
 
-  act(() => {
-    if (hydrate) {
-      ReactDOM.hydrate(wrapUiIfNeeded(ui), container)
-    } else {
-      ReactDOM.render(wrapUiIfNeeded(ui), container)
-    }
-  })
+      const element = $compile(ui)($scope)[0]
+      container.appendChild(element)
+
+      $scope.$digest()
+    },
+  ])
 
   return {
     container,
@@ -66,12 +46,6 @@ function render(
           el.forEach(e => console.log(prettyDOM(e)))
         : // eslint-disable-next-line no-console,
           console.log(prettyDOM(el)),
-    unmount: () => ReactDOM.unmountComponentAtNode(container),
-    rerender: rerenderUi => {
-      render(wrapUiIfNeeded(rerenderUi), {container, baseElement})
-      // Intentionally do not return anything to avoid unnecessarily complicating the API.
-      // folks can use all the same utilities we return in the first place that are bound to the container
-    },
     asFragment: () => {
       /* istanbul ignore if (jsdom limitation) */
       if (typeof document.createRange === 'function') {
@@ -84,6 +58,7 @@ function render(
       template.innerHTML = container.innerHTML
       return template.content
     },
+    $scope,
     ...getQueriesForElement(baseElement, queries),
   }
 }
@@ -95,63 +70,21 @@ function cleanup() {
 // maybe one day we'll expose this (perhaps even as a utility returned by render).
 // but let's wait until someone asks for it.
 function cleanupAtContainer(container) {
-  ReactDOM.unmountComponentAtNode(container)
   if (container.parentNode === document.body) {
     document.body.removeChild(container)
   }
   mountedContainers.delete(container)
 }
 
-// react-testing-library's version of fireEvent will call
-// dom-testing-library's version of fireEvent wrapped inside
-// an "act" call so that after all event callbacks have been
-// been called, the resulting useEffect callbacks will also
-// be called.
 function fireEvent(...args) {
-  let returnValue
-  act(() => {
-    returnValue = dtlFireEvent(...args)
-  })
-  return returnValue
+  return dtlFireEvent(...args)
 }
 
 Object.keys(dtlFireEvent).forEach(key => {
   fireEvent[key] = (...args) => {
-    let returnValue
-    act(() => {
-      returnValue = dtlFireEvent[key](...args)
-    })
-    return returnValue
+    return dtlFireEvent[key](...args)
   }
 })
 
-// React event system tracks native mouseOver/mouseOut events for
-// running onMouseEnter/onMouseLeave handlers
-// @link https://github.com/facebook/react/blob/b87aabdfe1b7461e7331abb3601d9e6bb27544bc/packages/react-dom/src/events/EnterLeaveEventPlugin.js#L24-L31
-fireEvent.mouseEnter = fireEvent.mouseOver
-fireEvent.mouseLeave = fireEvent.mouseOut
-
-fireEvent.select = (node, init) => {
-  // React tracks this event only on focused inputs
-  node.focus()
-
-  // React creates this event when one of the following native events happens
-  // - contextMenu
-  // - mouseUp
-  // - dragEnd
-  // - keyUp
-  // - keyDown
-  // so we can use any here
-  // @link https://github.com/facebook/react/blob/b87aabdfe1b7461e7331abb3601d9e6bb27544bc/packages/react-dom/src/events/SelectEventPlugin.js#L203-L224
-  fireEvent.keyUp(node, init)
-}
-
-// just re-export everything from dom-testing-library
 export * from '@testing-library/dom'
-export {render, cleanup, fireEvent, act}
-
-// NOTE: we're not going to export asyncAct because that's our own compatibility
-// thing for people using react-dom@16.8.0. Anyone else doesn't need it and
-// people should just upgrade anyway.
-
-/* eslint func-name-matching:0 */
+export {render, cleanup, fireEvent}

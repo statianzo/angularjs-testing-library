@@ -1,89 +1,31 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import angular from 'angular'
+import 'angular-mocks'
 import {render} from '../'
 
-test('renders div into document', () => {
-  const ref = React.createRef()
-  const {container} = render(<div ref={ref} />)
-  expect(container.firstChild).toBe(ref.current)
+beforeEach(() => {
+  angular.module('atl', [])
+  angular.mock.module('atl')
 })
 
-test('works great with react portals', () => {
-  class MyPortal extends React.Component {
-    constructor(...args) {
-      super(...args)
-      this.portalNode = document.createElement('div')
-      this.portalNode.dataset.testid = 'my-portal'
-    }
-    componentDidMount() {
-      document.body.appendChild(this.portalNode)
-    }
-    componentWillUnmount() {
-      this.portalNode.parentNode.removeChild(this.portalNode)
-    }
-    render() {
-      return ReactDOM.createPortal(
-        <Greet greeting="Hello" subject="World" />,
-        this.portalNode,
-      )
-    }
-  }
-
-  function Greet({greeting, subject}) {
-    return (
-      <div>
-        <strong>
-          {greeting} {subject}
-        </strong>
-      </div>
-    )
-  }
-
-  const {unmount, getByTestId, getByText} = render(<MyPortal />)
-  expect(getByText('Hello World')).toBeInTheDocument()
-  const portalNode = getByTestId('my-portal')
-  expect(portalNode).toBeInTheDocument()
-  unmount()
-  expect(portalNode).not.toBeInTheDocument()
+test('renders div into document', () => {
+  const {container} = render(`<div id="child"></div>`)
+  expect(container.firstChild.id).toBe('child')
 })
 
 test('returns baseElement which defaults to document.body', () => {
-  const {baseElement} = render(<div />)
+  const {baseElement} = render(`<div></div>`)
   expect(baseElement).toBe(document.body)
 })
 
 test('supports fragments', () => {
-  class Test extends React.Component {
-    render() {
-      return (
-        <div>
-          <code>DocumentFragment</code> is pretty cool!
-        </div>
-      )
-    }
-  }
-
-  const {asFragment} = render(<Test />)
-  expect(asFragment()).toMatchSnapshot()
-})
-
-test('renders options.wrapper around node', () => {
-  const WrapperComponent = ({children}) => (
-    <div data-testid="wrapper">{children}</div>
-  )
-
-  const {container, getByTestId} = render(<div data-testid="inner" />, {
-    wrapper: WrapperComponent,
+  angular.module('atl').component('atlFragment', {
+    template: `
+      <div>
+        <code>DocumentFragment</code> is pretty cool!
+      </div>
+    `,
   })
 
-  expect(getByTestId('wrapper')).toBeInTheDocument()
-  expect(container.firstChild).toMatchInlineSnapshot(`
-<div
-  data-testid="wrapper"
->
-  <div
-    data-testid="inner"
-  />
-</div>
-`)
+  const {asFragment} = render(`<atl-fragment></atl-fragment>`)
+  expect(asFragment()).toMatchSnapshot()
 })
