@@ -1,4 +1,3 @@
-import React from 'react'
 import {render, fireEvent} from '../'
 
 const eventTypes = [
@@ -43,7 +42,7 @@ const eventTypes = [
     events: [
       'click',
       'contextMenu',
-      'doubleClick',
+      'dblClick',
       'drag',
       'dragEnd',
       'dragEnter',
@@ -131,48 +130,56 @@ const eventTypes = [
 eventTypes.forEach(({type, events, elementType, init}) => {
   describe(`${type} Events`, () => {
     events.forEach(eventName => {
-      const propName = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(
-        1,
-      )}`
+      const propName = eventName.toLowerCase()
 
-      it(`triggers ${propName}`, () => {
-        const ref = React.createRef()
+      it(`triggers ${eventName}`, () => {
         const spy = jest.fn()
 
-        render(
-          React.createElement(elementType, {
-            [propName]: spy,
-            ref,
-          }),
+        const {getByTestId} = render(
+          `
+          <${elementType}
+            data-testid="target"
+            ng-on-${propName}="spy()"
+          ></${elementType}>`,
+          {
+            scope: {
+              spy,
+            },
+          },
         )
 
-        fireEvent[eventName](ref.current, init)
+        const target = getByTestId('target')
+        fireEvent[eventName](target, init)
         expect(spy).toHaveBeenCalledTimes(1)
       })
     })
   })
 })
 
-test('onChange works', () => {
-  const handleChange = jest.fn()
-  const {
-    container: {firstChild: input},
-  } = render(<input onChange={handleChange} />)
-  fireEvent.change(input, {target: {value: 'a'}})
-  expect(handleChange).toHaveBeenCalledTimes(1)
-})
-
 test('calling `fireEvent` directly works too', () => {
-  const handleEvent = jest.fn()
-  const {
-    container: {firstChild: button},
-  } = render(<button onClick={handleEvent} />)
+  const spy = jest.fn()
+
+  const {getByTestId} = render(
+    `
+          <button
+            data-testid="target"
+            ng-click="spy()"
+          ></button>`,
+    {
+      scope: {
+        spy,
+      },
+    },
+  )
+
+  const target = getByTestId('target')
   fireEvent(
-    button,
-    new Event('MouseEvent', {
+    target,
+    new Event('click', {
       bubbles: true,
       cancelable: true,
       button: 0,
     }),
   )
+  expect(spy).toHaveBeenCalledTimes(1)
 })

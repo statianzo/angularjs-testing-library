@@ -9,7 +9,7 @@ import {
 const mountedContainers = new Set()
 const mountedScopes = new Set()
 
-function render(ui, {container, baseElement = container, queries} = {}) {
+function render(ui, {container, baseElement = container, queries, scope} = {}) {
   if (!baseElement) {
     // default to document.body instead of documentElement to avoid output of potentially-large
     // head elements (such as JSS style blocks) in debug output
@@ -31,6 +31,7 @@ function render(ui, {container, baseElement = container, queries} = {}) {
     ($compile, $rootScope) => {
       $scope = $rootScope.$new()
       mountedScopes.add($scope)
+      Object.assign($scope, scope)
 
       const element = $compile(ui)($scope)[0]
       container.appendChild(element)
@@ -92,6 +93,14 @@ Object.keys(dtlFireEvent).forEach(key => {
     return dtlFireEvent[key](...args)
   }
 })
+
+fireEvent.mouseEnter = (...args) => {
+  return dtlFireEvent.mouseOver(...args)
+}
+
+fireEvent.mouseLeave = (...args) => {
+  return dtlFireEvent.mouseOut(...args)
+}
 
 export * from '@testing-library/dom'
 export {render, cleanup, fireEvent}

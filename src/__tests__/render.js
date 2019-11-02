@@ -29,3 +29,15 @@ test('supports fragments', () => {
   const {asFragment} = render(`<atl-fragment></atl-fragment>`)
   expect(asFragment()).toMatchSnapshot()
 })
+
+test('assigns to scope', () => {
+  const {getByText} = render(`<div>Hello {{name}}</div>`, {
+    scope: {
+      name: 'World',
+    },
+  })
+
+  expect(() => getByText('Hello World')).not.toThrow(
+    'Unable to find an element with the text: Hello World.',
+  )
+})
