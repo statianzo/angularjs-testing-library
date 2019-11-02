@@ -7,6 +7,7 @@ import {
 } from '@testing-library/dom'
 
 const mountedContainers = new Set()
+const mountedScopes = new Set()
 
 function render(ui, {container, baseElement = container, queries} = {}) {
   if (!baseElement) {
@@ -29,6 +30,7 @@ function render(ui, {container, baseElement = container, queries} = {}) {
     '$rootScope',
     ($compile, $rootScope) => {
       $scope = $rootScope.$new()
+      mountedScopes.add($scope)
 
       const element = $compile(ui)($scope)[0]
       container.appendChild(element)
@@ -64,6 +66,7 @@ function render(ui, {container, baseElement = container, queries} = {}) {
 }
 
 function cleanup() {
+  mountedScopes.forEach(cleanupScope)
   mountedContainers.forEach(cleanupAtContainer)
 }
 
@@ -74,6 +77,10 @@ function cleanupAtContainer(container) {
     document.body.removeChild(container)
   }
   mountedContainers.delete(container)
+}
+
+function cleanupScope(scope) {
+  scope.$destroy()
 }
 
 function fireEvent(...args) {
