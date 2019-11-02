@@ -84,23 +84,36 @@ function cleanupScope(scope) {
   scope.$destroy()
 }
 
+function getRootScope() {
+  let $rootScope
+  angular.mock.inject([
+    '$rootScope',
+    rootScope => {
+      $rootScope = rootScope
+    },
+  ])
+  return $rootScope
+}
+
 function fireEvent(...args) {
-  return dtlFireEvent(...args)
+  const $rootScope = getRootScope()
+  const result = dtlFireEvent(...args)
+  $rootScope.$digest()
+  return result
 }
 
 Object.keys(dtlFireEvent).forEach(key => {
   fireEvent[key] = (...args) => {
-    return dtlFireEvent[key](...args)
+    const $rootScope = getRootScope()
+    const result = dtlFireEvent[key](...args)
+    $rootScope.$digest()
+    return result
   }
 })
 
-fireEvent.mouseEnter = (...args) => {
-  return dtlFireEvent.mouseOver(...args)
-}
-
-fireEvent.mouseLeave = (...args) => {
-  return dtlFireEvent.mouseOut(...args)
-}
+// AngularJS maps `mouseEnter` to `mouseOver` and `mouseLeave` to `mouseOut`
+fireEvent.mouseEnter = fireEvent.mouseOver
+fireEvent.mouseLeave = fireEvent.mouseOut
 
 export * from '@testing-library/dom'
 export {render, cleanup, fireEvent}

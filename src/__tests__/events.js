@@ -135,10 +135,8 @@ eventTypes.forEach(({type, events, elementType, init}) => {
       it(`triggers ${eventName}`, () => {
         const spy = jest.fn()
 
-        const {getByTestId} = render(
-          `
-          <${elementType}
-            data-testid="target"
+        const {container} = render(
+          `<${elementType}
             ng-on-${propName}="spy()"
           ></${elementType}>`,
           {
@@ -148,8 +146,7 @@ eventTypes.forEach(({type, events, elementType, init}) => {
           },
         )
 
-        const target = getByTestId('target')
-        fireEvent[eventName](target, init)
+        fireEvent[eventName](container.firstChild, init)
         expect(spy).toHaveBeenCalledTimes(1)
       })
     })
@@ -160,11 +157,10 @@ test('calling `fireEvent` directly works too', () => {
   const spy = jest.fn()
 
   const {getByTestId} = render(
-    `
-          <button
-            data-testid="target"
-            ng-click="spy()"
-          ></button>`,
+    `<button
+      data-testid="target"
+      ng-click="spy()"
+    ></button>`,
     {
       scope: {
         spy,
