@@ -1,11 +1,10 @@
-import React from 'react'
 import {render} from '../'
 
-// This just verifies that by importing RTL in an
+// This just verifies that by importing ATL in an
 // environment which supports afterEach (like jest)
 // we'll get automatic cleanup between tests.
 test('first', () => {
-  render(<div>hi</div>)
+  render(`<div>hi</div>`)
 })
 
 test('second', () => {
