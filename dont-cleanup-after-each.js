@@ -1,1 +1,1 @@
-process.env.RTL_SKIP_AUTO_CLEANUP = true
+process.env.ATL_SKIP_AUTO_CLEANUP = true
