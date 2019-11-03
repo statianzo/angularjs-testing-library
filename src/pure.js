@@ -4,6 +4,7 @@ import {
   getQueriesForElement,
   prettyDOM,
   fireEvent as dtlFireEvent,
+  wait as dtlWait,
 } from '@testing-library/dom'
 
 const mountedContainers = new Set()
@@ -24,21 +25,17 @@ function render(ui, {container, baseElement = container, queries, scope} = {}) {
   // they're passing us a custom container or not.
   mountedContainers.add(container)
 
-  let $scope
-  angular.mock.inject([
-    '$compile',
-    '$rootScope',
-    ($compile, $rootScope) => {
-      $scope = $rootScope.$new()
-      mountedScopes.add($scope)
-      Object.assign($scope, scope)
+  const $rootScope = getAngularService('$rootScope')
+  const $compile = getAngularService('$compile')
+  const $scope = $rootScope.$new()
+  Object.assign($scope, scope)
 
-      const element = $compile(ui)($scope)[0]
-      container.appendChild(element)
+  mountedScopes.add($scope)
 
-      $scope.$digest()
-    },
-  ])
+  const element = $compile(ui)($scope)[0]
+  container.appendChild(element)
+
+  $scope.$digest()
 
   return {
     container,
@@ -84,19 +81,19 @@ function cleanupScope(scope) {
   scope.$destroy()
 }
 
-function getRootScope() {
-  let $rootScope
+function getAngularService(name) {
+  let service
   angular.mock.inject([
-    '$rootScope',
-    rootScope => {
-      $rootScope = rootScope
+    name,
+    injected => {
+      service = injected
     },
   ])
-  return $rootScope
+  return service
 }
 
 function fireEvent(...args) {
-  const $rootScope = getRootScope()
+  const $rootScope = getAngularService('$rootScope')
   const result = dtlFireEvent(...args)
   $rootScope.$digest()
   return result
@@ -104,7 +101,7 @@ function fireEvent(...args) {
 
 Object.keys(dtlFireEvent).forEach(key => {
   fireEvent[key] = (...args) => {
-    const $rootScope = getRootScope()
+    const $rootScope = getAngularService('$rootScope')
     const result = dtlFireEvent[key](...args)
     $rootScope.$digest()
     return result
@@ -115,5 +112,21 @@ Object.keys(dtlFireEvent).forEach(key => {
 fireEvent.mouseEnter = fireEvent.mouseOver
 fireEvent.mouseLeave = fireEvent.mouseOut
 
+function flush() {
+  const $browser = getAngularService('$browser')
+  if ($browser.deferredFns.length) {
+    $browser.defer.flush()
+  }
+}
+
+function wait(callback, options) {
+  dtlWait(() => {
+    flush()
+    if (callback) {
+      callback()
+    }
+  }, options)
+}
+
 export * from '@testing-library/dom'
-export {render, cleanup, fireEvent}
+export {render, cleanup, fireEvent, wait, flush}

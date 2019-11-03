@@ -1,5 +1,4 @@
-import flush from './flush-microtasks'
-import {cleanup} from './pure'
+import {flush, cleanup} from './pure'
 
 // if we're running in a test runner that supports afterEach
 // then we'll automatically run cleanup afterEach test
@@ -7,8 +6,8 @@ import {cleanup} from './pure'
 // if you don't like this then either import the `pure` module
 // or set the ATL_SKIP_AUTO_CLEANUP env variable to 'true'.
 if (typeof afterEach === 'function' && !process.env.ATL_SKIP_AUTO_CLEANUP) {
-  afterEach(async () => {
-    await flush()
+  afterEach(() => {
+    flush()
     cleanup()
   })
 }
