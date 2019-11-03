@@ -59,6 +59,9 @@ function render(ui, {container, baseElement = container, queries, scope} = {}) {
       return template.content
     },
     $scope,
+    unmount: () => {
+      $scope.$destroy()
+    },
     ...getQueriesForElement(baseElement, queries),
   }
 }
@@ -79,6 +82,7 @@ function cleanupAtContainer(container) {
 
 function cleanupScope(scope) {
   scope.$destroy()
+  mountedScopes.delete(scope)
 }
 
 function getAngularService(name) {
@@ -112,16 +116,18 @@ Object.keys(dtlFireEvent).forEach(key => {
 fireEvent.mouseEnter = fireEvent.mouseOver
 fireEvent.mouseLeave = fireEvent.mouseOut
 
-function flush() {
+function flush(millis = 50) {
   const $browser = getAngularService('$browser')
-  if ($browser.deferredFns.length) {
-    $browser.defer.flush()
-  }
+  const $rootScope = getAngularService('$rootScope')
+  const $interval = getAngularService('$interval')
+  $interval.flush(millis)
+  $browser.defer.flush(millis)
+  $rootScope.$digest()
 }
 
-function wait(callback, options) {
-  dtlWait(() => {
-    flush()
+function wait(callback, options = {}) {
+  return dtlWait(() => {
+    flush(options.interval)
     if (callback) {
       callback()
     }

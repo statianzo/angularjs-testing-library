@@ -1,56 +1,74 @@
-import React from 'react'
-import {render, fireEvent} from '../'
+import angular from 'angular'
+import 'angular-mocks'
+import {render, fireEvent, wait} from '../'
 
-class StopWatch extends React.Component {
-  state = {lapse: 0, running: false}
+class StopWatch {
+  lapse = 0
+  running = false
+
+  constructor($interval) {
+    this.$interval = $interval
+  }
+
   handleRunClick = () => {
-    this.setState(state => {
-      if (state.running) {
-        clearInterval(this.timer)
-      } else {
-        const startTime = Date.now() - this.state.lapse
-        this.timer = setInterval(() => {
-          this.setState({lapse: Date.now() - startTime})
-        })
-      }
-      return {running: !state.running}
-    })
+    if (this.running) {
+      clearInterval(this.timer)
+    } else {
+      const startTime = Date.now() - this.lapse
+      this.timer = this.$interval(() => {
+        this.lapse = Date.now() - startTime
+      })
+    }
+    this.running = !this.running
   }
+
   handleClearClick = () => {
-    clearInterval(this.timer)
-    this.setState({lapse: 0, running: false})
+    this.$interval.cancel(this.timer)
+    this.lapse = 0
+    this.running = false
   }
-  componentWillUnmount() {
-    clearInterval(this.timer)
-  }
-  render() {
-    const {lapse, running} = this.state
-    return (
-      <div>
-        <span>{lapse}ms</span>
-        <button onClick={this.handleRunClick}>
-          {running ? 'Stop' : 'Start'}
-        </button>
-        <button onClick={this.handleClearClick}>Clear</button>
-      </div>
-    )
+
+  $onDestroy() {
+    this.$interval.cancel(this.timer)
   }
 }
 
-const wait = time => new Promise(resolve => setTimeout(resolve, time))
+const template = `
+  <div>
+    <span data-testid="elapsed">{{$ctrl.lapse}}ms</span>
+    <button ng-click="$ctrl.handleRunClick()">
+      {{$ctrl.running ? 'Stop' : 'Start'}}
+    </button>
+    <button ng-click="$ctrl.handleClearClick()">Clear</button>
+  </div>
+`
+
+beforeEach(() => {
+  angular.module('atl', [])
+  angular.mock.module('atl')
+  angular.module('atl').component('atlStopwatch', {
+    template,
+    controller: StopWatch,
+  })
+})
 
 test('unmounts a component', async () => {
-  jest.spyOn(console, 'error').mockImplementation(() => {})
-  const {unmount, getByText, container} = render(<StopWatch />)
+  const {$scope, unmount, getByText, getByTestId} = render(
+    `<atl-stopwatch></atl-stopwatch>`,
+  )
+  const elapsedTime = getByTestId('elapsed')
+
+  expect(elapsedTime).toHaveTextContent('0ms')
+
   fireEvent.click(getByText('Start'))
+  // Ensure it starts
+  getByText('Stop')
+
+  await wait()
+
+  expect(elapsedTime.textContent).not.toEqual('0ms')
+
   unmount()
-  // hey there reader! You don't need to have an assertion like this one
-  // this is just me making sure that the unmount function works.
-  // You don't need to do this in your apps. Just rely on the fact that this works.
-  expect(container.innerHTML).toBe('')
-  // just wait to see if the interval is cleared or not
-  // if it's not, then we'll call setState on an unmounted component
-  // and get an error.
-  // eslint-disable-next-line no-console
-  await wait(() => expect(console.error).not.toHaveBeenCalled())
+
+  expect($scope.$$destroyed).toBe(true)
 })
