@@ -10,7 +10,16 @@ import {
 const mountedContainers = new Set()
 const mountedScopes = new Set()
 
-function render(ui, {container, baseElement = container, queries, scope} = {}) {
+function render(
+  ui,
+  {
+    container,
+    baseElement = container,
+    queries,
+    scope,
+    ignoreUnknownElements,
+  } = {},
+) {
   if (!baseElement) {
     // default to document.body instead of documentElement to avoid output of potentially-large
     // head elements (such as JSS style blocks) in debug output
@@ -36,6 +45,10 @@ function render(ui, {container, baseElement = container, queries, scope} = {}) {
   container.appendChild(element)
 
   $scope.$digest()
+
+  if (!ignoreUnknownElements) {
+    assertNoUnknownElements(container)
+  }
 
   return {
     container,
@@ -83,6 +96,26 @@ function cleanupAtContainer(container) {
 function cleanupScope(scope) {
   scope.$destroy()
   mountedScopes.delete(scope)
+}
+
+function toCamel(s) {
+  return s
+    .toLowerCase()
+    .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+}
+
+function assertNoUnknownElements(element) {
+  const {tagName} = element
+  if (tagName.includes('-')) {
+    const $injector = getAngularService('$injector')
+    const directiveName = `${toCamel(tagName)}Directive`
+    if (!$injector.has(directiveName)) {
+      throw Error(
+        `Unknown component/directive "${tagName}". Are you missing an import?`,
+      )
+    }
+  }
+  Array.from(element.children).forEach(assertNoUnknownElements)
 }
 
 function getAngularService(name) {

@@ -41,3 +41,30 @@ test('assigns to scope', () => {
     'Unable to find an element with the text: Hello World.',
   )
 })
+
+test('throws on unknown custom elements', () => {
+  angular.module('atl').component('atlParent', {
+    template: `
+      <h1>Hi</hz>
+      <atl-child></atl-child>
+    `,
+  })
+
+  expect(() => render(`<atl-parent></atl-parent>`)).toThrow(
+    'Unknown component/directive "ATL-CHILD"',
+  )
+})
+
+test('suppresses unknown custom elements error', () => {
+  angular.module('atl').component('atlParent', {
+    template: `
+      <h1>Hi</hz>
+      <atl-child></atl-child>
+    `,
+  })
+
+  const {container} = render(`<atl-parent></atl-parent>`, {
+    ignoreUnknownElements: true,
+  })
+  expect(container.querySelector('atl-child')).toBeDefined()
+})
