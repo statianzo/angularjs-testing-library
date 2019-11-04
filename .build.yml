@@ -7,9 +7,7 @@ sources:
 secrets:
   - 01f84277-3abe-4ed1-9d0d-d66b49bfcfe7
   - 5756e542-1a3e-4c27-ac4c-4820cff2b965
-  - cb7614c0-83c9-405d-97f0-9623a133bdd9
-environment:
-  CI: true
+  - 576364b7-4764-4794-a536-1a3357fb222b
 tasks:
   - setup: |
       sudo n stable
@@ -21,4 +19,4 @@ tasks:
   - publish: |
       . ~/.npm-token
       cd angularjs-testing-library
-      yarn semantic-release
+      CI=true yarn semantic-release
