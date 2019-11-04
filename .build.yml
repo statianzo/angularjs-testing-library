@@ -6,12 +6,12 @@ sources:
   - https://git.sr.ht/~statianzo/angularjs-testing-library
 tasks:
   - setup: |
-      n stable
+      sudo n stable
       cd angularjs-testing-library
       yarn
-  - test: |
+  - validate: |
       cd angularjs-testing-library
-      yarn test
-  - build: |
+      yarn validate
+  - publish: |
       cd angularjs-testing-library
-      yarn run build
+      yarn run travis-after-success
