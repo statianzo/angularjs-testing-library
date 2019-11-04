@@ -17,8 +17,7 @@
     "test": "kcd-scripts test",
     "test:update": "npm test -- --updateSnapshot --coverage",
     "validate": "kcd-scripts validate",
-    "setup": "npm install && npm run validate -s",
-    "semantic-release": "semantic-release"
+    "setup": "npm install && npm run validate -s"
   },
   "husky": {
     "hooks": {
@@ -50,6 +49,7 @@
     "@testing-library/dom": "^6.3.0"
   },
   "devDependencies": {
+    "@semantic-release/git": "^7.0.17",
     "@testing-library/jest-dom": "^4.1.0",
     "angular": "^1.7.8",
     "angular-mocks": "^1.7.8",
@@ -80,5 +80,14 @@
     "type": "git",
     "url": "https://git.sr.ht/~statianzo/angularjs-testing-library"
   },
-  "homepage": "https://git.sr.ht/~statianzo/angularjs-testing-library"
+  "homepage": "https://git.sr.ht/~statianzo/angularjs-testing-library",
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      "@semantic-release/git"
+    ],
+    "repositoryUrl": "git@git.sr.ht:~statianzo/angularjs-testing-library"
+  }
 }

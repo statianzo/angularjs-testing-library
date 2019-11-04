@@ -4,6 +4,9 @@ packages:
   - yarn
 sources:
   - https://git.sr.ht/~statianzo/angularjs-testing-library
+secrets:
+  - 5756e542-1a3e-4c27-ac4c-4820cff2b965
+  - cb7614c0-83c9-405d-97f0-9623a133bdd9
 tasks:
   - setup: |
       sudo n stable
@@ -13,5 +16,6 @@ tasks:
       cd angularjs-testing-library
       yarn validate
   - publish: |
+      . ~/.npm-token
       cd angularjs-testing-library
-      yarn run kcd-scripts travis-after-success
+      yarn semantic-release
