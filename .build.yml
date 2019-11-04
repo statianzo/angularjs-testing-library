@@ -5,8 +5,11 @@ packages:
 sources:
   - https://git.sr.ht/~statianzo/angularjs-testing-library
 secrets:
+  - 01f84277-3abe-4ed1-9d0d-d66b49bfcfe7
   - 5756e542-1a3e-4c27-ac4c-4820cff2b965
   - cb7614c0-83c9-405d-97f0-9623a133bdd9
+environment:
+  CI: true
 tasks:
   - setup: |
       sudo n stable
