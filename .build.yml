@@ -14,4 +14,4 @@ tasks:
       yarn validate
   - publish: |
       cd angularjs-testing-library
-      yarn run travis-after-success
+      yarn run kcd-scripts travis-after-success
