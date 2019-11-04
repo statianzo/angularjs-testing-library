@@ -1,0 +1,17 @@
+image: archlinux
+packages:
+  - nodejs-n
+  - yarn
+sources:
+  - https://git.sr.ht/~statianzo/angularjs-testing-library
+tasks:
+  - setup: |
+      n stable
+      cd angularjs-testing-library
+      yarn
+  - test: |
+      cd angularjs-testing-library
+      yarn test
+  - build: |
+      cd angularjs-testing-library
+      yarn run build
