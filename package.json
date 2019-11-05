@@ -1,6 +1,6 @@
 {
   "name": "angularjs-testing-library",
-  "version": "2.0.0",
+  "version": "0.0.0-semantic-release",
   "description": "Simple and complete AngularJS testing utilities that encourage good testing practices.",
   "main": "dist/index.js",
   "module": "dist/angularjs-testing-library.esm.js",
@@ -86,7 +86,9 @@
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/npm",
-      "@semantic-release/git"
+      ["@semantic-release/git", {
+        "assets": false
+      }]
     ],
     "repositoryUrl": "git@git.sr.ht:~statianzo/angularjs-testing-library"
   }
