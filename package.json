@@ -1,6 +1,6 @@
 {
   "name": "angularjs-testing-library",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Simple and complete AngularJS testing utilities that encourage good testing practices.",
   "main": "dist/index.js",
   "module": "dist/angularjs-testing-library.esm.js",
