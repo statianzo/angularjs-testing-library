@@ -42,7 +42,10 @@
     "end-to-end",
     "e2e"
   ],
-  "author": "Kent C. Dodds <kent@doddsfamily.us> (http://kentcdodds.com/)",
+  "contributors": [
+    "Jason Staten <code.npm@jxs.me> (https://jxs.me)",
+    "Kent C. Dodds <kent@doddsfamily.us> (http://kentcdodds.com/)"
+  ],
   "license": "MIT",
   "dependencies": {
     "@babel/runtime": "^7.6.0",
@@ -86,9 +89,12 @@
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/npm",
-      ["@semantic-release/git", {
-        "assets": false
-      }]
+      [
+        "@semantic-release/git",
+        {
+          "assets": false
+        }
+      ]
     ],
     "repositoryUrl": "git@git.sr.ht:~statianzo/angularjs-testing-library"
   }

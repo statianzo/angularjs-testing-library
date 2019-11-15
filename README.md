@@ -1,6 +1,6 @@
 # AngularJS Testing Library
 
-Simple and complete Vue.js testing utilities that encourage good testing
+Simple and complete AngularJS testing utilities that encourage good testing
 practices.
 
 AngularJS Testing Library is a lightweight adapter built on top of
