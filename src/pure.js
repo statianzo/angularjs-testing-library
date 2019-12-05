@@ -34,8 +34,8 @@ function render(
   // they're passing us a custom container or not.
   mountedContainers.add(container)
 
-  const $rootScope = getAngularService('$rootScope')
-  const $compile = getAngularService('$compile')
+  const $rootScope = inject('$rootScope')
+  const $compile = inject('$compile')
   const $scope = $rootScope.$new()
   Object.assign($scope, scope)
 
@@ -107,7 +107,7 @@ function toCamel(s) {
 function assertNoUnknownElements(element) {
   const {tagName} = element
   if (tagName.includes('-')) {
-    const $injector = getAngularService('$injector')
+    const $injector = inject('$injector')
     const directiveName = `${toCamel(tagName)}Directive`
     if (!$injector.has(directiveName)) {
       throw Error(
@@ -118,7 +118,7 @@ function assertNoUnknownElements(element) {
   Array.from(element.children).forEach(assertNoUnknownElements)
 }
 
-function getAngularService(name) {
+function inject(name) {
   let service
   angular.mock.inject([
     name,
@@ -130,7 +130,7 @@ function getAngularService(name) {
 }
 
 function fireEvent(...args) {
-  const $rootScope = getAngularService('$rootScope')
+  const $rootScope = inject('$rootScope')
   const result = dtlFireEvent(...args)
   $rootScope.$digest()
   return result
@@ -138,7 +138,7 @@ function fireEvent(...args) {
 
 Object.keys(dtlFireEvent).forEach(key => {
   fireEvent[key] = (...args) => {
-    const $rootScope = getAngularService('$rootScope')
+    const $rootScope = inject('$rootScope')
     const result = dtlFireEvent[key](...args)
     $rootScope.$digest()
     return result
@@ -150,9 +150,9 @@ fireEvent.mouseEnter = fireEvent.mouseOver
 fireEvent.mouseLeave = fireEvent.mouseOut
 
 function flush(millis = 50) {
-  const $browser = getAngularService('$browser')
-  const $rootScope = getAngularService('$rootScope')
-  const $interval = getAngularService('$interval')
+  const $browser = inject('$browser')
+  const $rootScope = inject('$rootScope')
+  const $interval = inject('$interval')
   $interval.flush(millis)
   $browser.defer.flush(millis)
   $rootScope.$digest()
@@ -168,4 +168,4 @@ function wait(callback, options = {}) {
 }
 
 export * from '@testing-library/dom'
-export {render, cleanup, fireEvent, wait, flush}
+export {render, cleanup, fireEvent, wait, flush, inject}
