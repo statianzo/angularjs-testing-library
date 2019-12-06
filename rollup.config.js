@@ -10,7 +10,12 @@ const pkgDependencies = Object.keys({
 export default {
   input: 'src/index',
   output: [
-    {file: pkg.main, format: 'cjs', sourcemap: true},
+    {
+      file: pkg.main,
+      format: 'cjs',
+      sourcemap: true,
+      externalLiveBindings: false,
+    },
     {file: pkg.module, format: 'es', sourcemap: true},
   ],
   external: [...pkgDependencies],
