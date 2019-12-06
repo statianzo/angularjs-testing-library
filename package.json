@@ -2,33 +2,48 @@
   "name": "angularjs-testing-library",
   "version": "0.0.0-semantic-release",
   "description": "Simple and complete AngularJS testing utilities that encourage good testing practices.",
-  "main": "dist/index.js",
-  "module": "dist/angularjs-testing-library.esm.js",
+  "main": "lib/index.js",
+  "module": "lib/angularjs-testing-library.mjs",
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "npm-run-all --parallel build:main build:bundle:main build:bundle:pure",
-    "build:main": "kcd-scripts build --no-clean",
-    "build:bundle:main": "kcd-scripts build --bundle --no-clean",
-    "build:bundle:pure": "cross-env BUILD_FILENAME_SUFFIX=.pure BUILD_INPUT=src/pure.js kcd-scripts build --bundle --no-clean",
-    "lint": "kcd-scripts lint",
-    "test": "kcd-scripts test",
-    "test:update": "npm test -- --updateSnapshot --coverage",
-    "validate": "kcd-scripts validate",
-    "setup": "npm install && npm run validate -s"
+    "prebuild": "rimraf lib",
+    "build": "rollup -c",
+    "lint": "eslint --cache .",
+    "test": "jest",
+    "validate": "concurrently yarn:validate:*",
+    "validate:lnt": "yarn --silent lint",
+    "validate:bld": "yarn --silent build",
+    "validate:tst": "yarn --silent test"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "kcd-scripts pre-commit"
+      "pre-commit": "lint-staged"
     }
   },
+  "lint-staged": {
+    "*.{js}": [
+      "prettier --write",
+      "eslint",
+      "git add"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write",
+      "git add"
+    ],
+    "README.md": [
+      "doctoc --maxlevel 3 --notitle"
+    ]
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "@testing-library/jest-dom/extend-expect"
+    ]
+  },
   "files": [
-    "dist",
-    "cleanup-after-each.js",
-    "dont-cleanup-after-each.js",
-    "pure.js"
+    "lib",
+    "dont-cleanup-after-each.js"
   ],
   "keywords": [
     "testing",
@@ -48,35 +63,36 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime": "^7.6.0",
     "@testing-library/dom": "^6.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.7.5",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-transform-modules-commonjs": "^7.7.5",
     "@semantic-release/git": "^7.0.17",
     "@testing-library/jest-dom": "^4.1.0",
     "angular": "^1.7.8",
     "angular-mocks": "^1.7.8",
-    "cross-env": "^6.0.0",
-    "kcd-scripts": "^1.7.0",
-    "npm-run-all": "^4.1.5",
+    "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
+    "concurrently": "^5.0.0",
+    "doctoc": "^1.4.0",
+    "eslint": "^6.7.2",
+    "husky": "^3.1.0",
+    "jest-cli": "^24.9.0",
+    "lint-staged": "^9.5.0",
     "rimraf": "^3.0.0",
+    "rollup": "^1.27.8",
     "semantic-release": "^15.13.30"
   },
   "peerDependencies": {
     "angular": "*",
     "angular-mocks": "*"
   },
-  "eslintConfig": {
-    "extends": "./node_modules/kcd-scripts/eslint.js",
-    "rules": {
-      "import/no-unassigned-import": "off",
-      "import/named": "off"
-    }
-  },
   "eslintIgnore": [
     "node_modules",
     "coverage",
-    "dist",
+    "lib",
     "*.d.ts"
   ],
   "repository": {
