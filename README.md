@@ -8,21 +8,22 @@ AngularJS Testing Library is a lightweight adapter built on top of
 
 <!-- prettier-ignore-start -->
 [![version][version-badge]][package] [![downloads][downloads-badge]][npmtrends]
-[![MIT License][license-badge]][license]
+[![MIT License][license-badge]][license] [![issues todo.sr.ht][issues-badge]][issues]
 <!-- prettier-ignore-end -->
 
 ## Table of Contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [The problem](#the-problem)
-- [This solution](#this-solution)
-- [Installation](#installation)
-- [Examples](#examples)
-  - [Basic Example](#basic-example)
-- [Guiding Principles](#guiding-principles)
-- [LICENSE](#license)
+* [The problem](#the-problem)
+* [This solution](#this-solution)
+* [Installation](#installation)
+* [Examples](#examples)
+  * [Basic Example](#basic-example)
+* [Guiding Principles](#guiding-principles)
+* [LICENSE](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -155,7 +156,7 @@ light-weight, simple, and understandable.
 
 ## LICENSE
 
-[MIT](LICENSE)
+[MIT][license]
 
 <!-- prettier-ignore-start -->
 
@@ -166,7 +167,9 @@ light-weight, simple, and understandable.
 [downloads-badge]: https://img.shields.io/npm/dm/angularjs-testing-library.svg?style=flat-square
 [npmtrends]: http://www.npmtrends.com/angularjs-testing-library
 [license-badge]: https://img.shields.io/npm/l/angular-testing-library.svg?style=flat-square
-[license]: https://example.com
+[license]: https://opensource.org/licenses/MIT
+[issues-badge]: https://img.shields.io/badge/issues-todo.sr.ht-orange?style=flat-square
+[issues]: https://todo.sr.ht/~statianzo/angularjs-testing-library
 [guiding-principle]: https://twitter.com/kentcdodds/status/977018512689455106
 
 <!-- prettier-ignore-end -->
