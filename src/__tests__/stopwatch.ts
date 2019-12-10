@@ -1,23 +1,24 @@
-import angular from 'angular'
+import * as angular from 'angular'
 import 'angular-mocks'
 import {render, fireEvent, wait} from '../'
 
 class StopWatch {
+  timer!: angular.IPromise<void>
   lapse = 0
   running = false
 
-  constructor($interval) {
+  constructor(private $interval: angular.IIntervalService) {
     this.$interval = $interval
   }
 
   handleRunClick = () => {
     if (this.running) {
-      clearInterval(this.timer)
+      this.$interval.cancel(this.timer)
     } else {
       const startTime = Date.now() - this.lapse
       this.timer = this.$interval(() => {
         this.lapse = Date.now() - startTime
-      })
+      }, 0)
     }
     this.running = !this.running
   }
@@ -70,5 +71,5 @@ test('unmounts a component', async () => {
 
   unmount()
 
-  expect($scope.$$destroyed).toBe(true)
+  expect(($scope as any).$$destroyed).toBe(true)
 })

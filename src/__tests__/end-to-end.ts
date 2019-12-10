@@ -1,17 +1,21 @@
-import angular from 'angular'
+import * as angular from 'angular'
 import 'angular-mocks'
 import {render, wait} from '../'
 
+type FakeResponse = {
+  returnedMessage: string
+}
+
 class controller {
   loading = true
-  data = null
+  data?: FakeResponse
 
-  constructor($q, $timeout) {
-    this.$q = $q
-    this.$timeout = $timeout
-  }
+  constructor(
+    private $q: angular.IQService,
+    private $timeout: angular.ITimeoutService,
+  ) {}
 
-  load() {
+  load(): angular.IPromise<FakeResponse> {
     return this.$q(resolve => {
       // we are using random timeout here to simulate a real-time example
       // of an async operation calling a callback at a non-deterministic time

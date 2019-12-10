@@ -1,25 +1,57 @@
-import angular from 'angular'
+import * as angular from 'angular'
+import {
+  ICompileService,
+  IScope,
+  IRootScopeService,
+  IIntervalService,
+  IFlushPendingTasksService,
+} from 'angular'
 import 'angular-mocks'
 import {
   getQueriesForElement,
   prettyDOM,
   fireEvent as dtlFireEvent,
   wait as dtlWait,
+  queries as dtlQueries,
+  Queries,
+  BoundFunction,
 } from '@testing-library/dom'
 
-const mountedContainers = new Set()
-const mountedScopes = new Set()
+const mountedContainers = new Set<HTMLElement>()
+const mountedScopes = new Set<IScope>()
+
+type RenderOptions<Q extends Queries = typeof dtlQueries> = {
+  container?: HTMLElement
+  baseElement?: HTMLElement
+  queries?: Q
+  scope?: object
+  ignoreUnknownElements?: boolean
+}
+
+type RenderResult<Q extends Queries = typeof dtlQueries> = {
+  container: HTMLElement
+  baseElement: HTMLElement
+  debug: (
+    baseElement?:
+      | HTMLElement
+      | DocumentFragment
+      | Array<HTMLElement | DocumentFragment>,
+  ) => void
+  unmount: () => void
+  asFragment: () => DocumentFragment
+  $scope: IScope
+} & {[P in keyof Q]: BoundFunction<Q[P]>}
 
 function render(
-  ui,
+  ui: string,
   {
     container,
     baseElement = container,
     queries,
     scope,
-    ignoreUnknownElements,
-  } = {},
-) {
+    ignoreUnknownElements = false,
+  }: RenderOptions = {},
+): RenderResult {
   if (!baseElement) {
     // default to document.body instead of documentElement to avoid output of potentially-large
     // head elements (such as JSS style blocks) in debug output
@@ -34,8 +66,8 @@ function render(
   // they're passing us a custom container or not.
   mountedContainers.add(container)
 
-  const $rootScope = inject('$rootScope')
-  const $compile = inject('$compile')
+  const $rootScope = inject<IRootScopeService>('$rootScope')
+  const $compile = inject<ICompileService>('$compile')
   const $scope = $rootScope.$new()
   Object.assign($scope, scope)
 
@@ -56,19 +88,18 @@ function render(
     debug: (el = baseElement) =>
       Array.isArray(el)
         ? // eslint-disable-next-line no-console
-          el.forEach(e => console.log(prettyDOM(e)))
+          el.forEach(e => console.log(prettyDOM(e as HTMLElement)))
         : // eslint-disable-next-line no-console,
-          console.log(prettyDOM(el)),
+          console.log(prettyDOM(el as HTMLElement)),
     asFragment: () => {
+      const source = container as HTMLElement
       /* istanbul ignore if (jsdom limitation) */
       if (typeof document.createRange === 'function') {
-        return document
-          .createRange()
-          .createContextualFragment(container.innerHTML)
+        return document.createRange().createContextualFragment(source.innerHTML)
       }
 
       const template = document.createElement('template')
-      template.innerHTML = container.innerHTML
+      template.innerHTML = source.innerHTML
       return template.content
     },
     $scope,
@@ -86,28 +117,28 @@ function cleanup() {
 
 // maybe one day we'll expose this (perhaps even as a utility returned by render).
 // but let's wait until someone asks for it.
-function cleanupAtContainer(container) {
+function cleanupAtContainer(container: HTMLElement) {
   if (container.parentNode === document.body) {
     document.body.removeChild(container)
   }
   mountedContainers.delete(container)
 }
 
-function cleanupScope(scope) {
+function cleanupScope(scope: IScope) {
   scope.$destroy()
   mountedScopes.delete(scope)
 }
 
-function toCamel(s) {
+function toCamel(s: string) {
   return s
     .toLowerCase()
     .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
 }
 
-function assertNoUnknownElements(element) {
+function assertNoUnknownElements(element: Element) {
   const {tagName} = element
   if (tagName.includes('-')) {
-    const $injector = inject('$injector')
+    const $injector = inject<angular.auto.IInjectorService>('$injector')
     const directiveName = `${toCamel(tagName)}Directive`
     if (!$injector.has(directiveName)) {
       throw Error(
@@ -118,7 +149,7 @@ function assertNoUnknownElements(element) {
   Array.from(element.children).forEach(assertNoUnknownElements)
 }
 
-function inject(name) {
+function inject<T = unknown>(name: string): T {
   let service
   angular.mock.inject([
     name,
@@ -126,39 +157,30 @@ function inject(name) {
       service = injected
     },
   ])
-  return service
+  return (service as unknown) as T
 }
-
-function fireEvent(...args) {
-  const $rootScope = inject('$rootScope')
-  const result = dtlFireEvent(...args)
-  $rootScope.$digest()
-  return result
-}
-
-Object.keys(dtlFireEvent).forEach(key => {
-  fireEvent[key] = (...args) => {
-    const $rootScope = inject('$rootScope')
-    const result = dtlFireEvent[key](...args)
-    $rootScope.$digest()
-    return result
-  }
-})
 
 // AngularJS maps `mouseEnter` to `mouseOver` and `mouseLeave` to `mouseOut`
-fireEvent.mouseEnter = fireEvent.mouseOver
-fireEvent.mouseLeave = fireEvent.mouseOut
+// Create a copy so we can alter it
+const fireEvent = dtlFireEvent.bind(null)
+Object.assign(fireEvent, dtlFireEvent)
+
+fireEvent.mouseEnter = dtlFireEvent.mouseOver
+fireEvent.mouseLeave = dtlFireEvent.mouseOut
 
 function flush(millis = 50) {
-  const $browser = inject('$browser')
-  const $rootScope = inject('$rootScope')
-  const $interval = inject('$interval')
+  const $flushPendingTasks = inject<IFlushPendingTasksService>(
+    '$flushPendingTasks',
+  )
+  const $rootScope = inject<IRootScopeService>('$rootScope')
+  const $interval = inject<IIntervalService>('$interval')
   $interval.flush(millis)
-  $browser.defer.flush(millis)
+  $flushPendingTasks(millis)
   $rootScope.$digest()
 }
 
-function wait(callback, options = {}) {
+type WaitOptions = Parameters<typeof dtlWait>[1]
+function wait(callback?: () => void, options: WaitOptions = {}) {
   return dtlWait(() => {
     flush(options.interval)
     if (callback) {

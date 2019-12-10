@@ -1,5 +1,7 @@
 import {flush, cleanup} from './pure'
 
+declare function afterEach(cb: () => void): void
+
 // if we're running in a test runner that supports afterEach
 // then we'll automatically run cleanup afterEach test
 // this ensures that tests run in isolation from each other

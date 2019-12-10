@@ -6,7 +6,10 @@ module.exports = {
     jest: true,
   },
   extends: ['eslint:recommended'],
-  parser: 'babel-eslint',
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    sourceType: 'module',
+  },
   rules: {
     'linebreak-style': ['error', 'unix'],
     'no-console': ['error', {allow: ['warn', 'error']}],
@@ -17,5 +20,7 @@ module.exports = {
     'object-shorthand': 'error',
     'no-useless-rename': 'error',
     'no-use-before-define': ['error', {functions: false}],
+    'no-unused-vars': 'off',
+    'no-duplicate-imports': 'off',
   },
 }

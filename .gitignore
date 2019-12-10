@@ -5,6 +5,7 @@ lib
 .opt-out
 .DS_Store
 .eslintcache
+.vscode
 
 yarn-error.log
 

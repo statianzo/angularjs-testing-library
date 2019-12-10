@@ -1,4 +1,4 @@
-import angular from 'angular'
+import * as angular from 'angular'
 import 'angular-mocks'
 import {render} from '../'
 
@@ -9,7 +9,7 @@ beforeEach(() => {
 
 test('renders div into document', () => {
   const {container} = render(`<div id="child"></div>`)
-  expect(container.firstChild.id).toBe('child')
+  expect((container.firstElementChild as Element).id).toBe('child')
 })
 
 test('returns baseElement which defaults to document.body', () => {

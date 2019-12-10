@@ -1,4 +1,4 @@
-import angular from 'angular'
+import * as angular from 'angular'
 import 'angular-mocks'
 import {render} from '../'
 
@@ -7,7 +7,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  console.log.mockRestore()
+  (console.log as jest.Mock).mockRestore()
 })
 
 beforeEach(() => {

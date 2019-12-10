@@ -1,7 +1,8 @@
 import {render} from '../'
 
 // these are created once per test suite and reused for each case
-let treeA, treeB
+let treeA: HTMLDivElement
+let treeB: HTMLDivElement
 beforeAll(() => {
   treeA = document.createElement('div')
   treeB = document.createElement('div')
@@ -10,8 +11,8 @@ beforeAll(() => {
 })
 
 afterAll(() => {
-  treeA.parentNode.removeChild(treeA)
-  treeB.parentNode.removeChild(treeB)
+  (treeA.parentNode as Node).removeChild(treeA)
+  ;(treeB.parentNode as Node).removeChild(treeB)
 })
 
 test('baseElement isolates trees from one another', () => {

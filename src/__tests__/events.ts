@@ -1,6 +1,13 @@
 import {render, fireEvent} from '../'
 
-const eventTypes = [
+type EventType = {
+  type: string
+  events: Array<keyof typeof fireEvent>
+  elementType: string
+  init?: object
+}
+
+const eventTypes: EventType[] = [
   {
     type: 'Clipboard',
     events: ['copy', 'paste'],
@@ -146,7 +153,7 @@ eventTypes.forEach(({type, events, elementType, init}) => {
           },
         )
 
-        fireEvent[eventName](container.firstChild, init)
+        fireEvent[eventName](container.firstElementChild as Element, init)
         expect(spy).toHaveBeenCalledTimes(1)
       })
     })
@@ -174,7 +181,6 @@ test('calling `fireEvent` directly works too', () => {
     new Event('click', {
       bubbles: true,
       cancelable: true,
-      button: 0,
     }),
   )
   expect(spy).toHaveBeenCalledTimes(1)
