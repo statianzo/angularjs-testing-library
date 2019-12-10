@@ -16,6 +16,9 @@ tasks:
   - validate: |
       cd angularjs-testing-library
       yarn validate
+      if [ "$(git rev-parse origin/master)" != "$(git rev-parse HEAD)" ]; then \
+        complete-build; \
+      fi
   - publish: |
       . ~/.npm-token
       cd angularjs-testing-library
