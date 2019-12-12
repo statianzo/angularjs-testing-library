@@ -1,0 +1,15 @@
+image: archlinux
+secrets:
+- 3f89fef9-5367-4a4e-abcd-48428e354073
+sources:
+- https://git.sr.ht/~statianzo/angularjs-testing-library
+tasks:
+- master_only: |
+    cd angularjs-testing-library
+    if [ "$(git rev-parse origin/master)" != "$(git rev-parse HEAD)" ]; then \
+      complete-build; \
+    fi
+- mirror: |
+    cd angularjs-testing-library
+    ssh-keyscan github.com >> ~/.ssh/known_hosts
+    git push --mirror git@github.com:statianzo/angularjs-testing-library.git
