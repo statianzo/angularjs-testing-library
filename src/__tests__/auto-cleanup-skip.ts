@@ -1,9 +1,4 @@
-let render: (html: string) => void
-beforeAll(() => {
-  process.env.ATL_SKIP_AUTO_CLEANUP = 'true'
-  const atl = require('../')
-  render = atl.render
-})
+import {render} from '../pure';
 
 // This one verifies that if ATL_SKIP_AUTO_CLEANUP is set
 // then we DON'T auto-wire up the afterEach for folks

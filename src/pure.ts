@@ -11,7 +11,7 @@ import {
   getQueriesForElement,
   prettyDOM,
   fireEvent as dtlFireEvent,
-  wait as dtlWait,
+  waitFor as dtlWait,
   queries as dtlQueries,
   Queries,
   BoundFunction,

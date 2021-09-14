@@ -1,4 +1,4 @@
-import {flush, cleanup} from './pure'
+import { cleanup} from './pure'
 
 declare function afterEach(cb: () => void): void
 
@@ -9,7 +9,6 @@ declare function afterEach(cb: () => void): void
 // or set the ATL_SKIP_AUTO_CLEANUP env variable to 'true'.
 if (typeof afterEach === 'function' && !process.env.ATL_SKIP_AUTO_CLEANUP) {
   afterEach(() => {
-    flush()
     cleanup()
   })
 }
