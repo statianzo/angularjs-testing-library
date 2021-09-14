@@ -14,7 +14,6 @@ module.exports = {
     'linebreak-style': ['error', 'unix'],
     'no-console': ['error', {allow: ['warn', 'error']}],
     'no-shadow': 'error',
-    'no-duplicate-imports': 'error',
     'no-var': 'error',
     'prefer-const': 'error',
     'object-shorthand': 'error',
